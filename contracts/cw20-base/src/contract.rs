@@ -24,7 +24,7 @@ use crate::state::{
     TOKEN_INFO,
 };
 
-// version info for migration info  
+// version info for migration info
 const CONTRACT_NAME: &str = "crates.io:cw20-base";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
