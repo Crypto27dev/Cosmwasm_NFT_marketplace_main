@@ -1,0 +1,40 @@
+[package]
+name = "marble-marketplace"
+version = "0.0.1"
+authors = ["Joni Lai <phantomtop0127@gmail.com>", "FORTIS"]
+edition = "2018"
+description = "marketplace contract"
+license = "Apache-2.0"
+repository = "https://github.com/PhantomTop/marketplace-contract"
+homepage = "https://cosmwasm.com"
+documentation = "https://docs.cosmwasm.com"
+
+exclude = [
+  "contract.wasm",
+  "hash.txt",
+]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+backtraces = ["cosmwasm-std/backtraces"]
+library = []
+
+[dependencies]
+cw-utils = { version = "0.11" }
+cw2 = { version = "0.11" }
+cw20 = { version = "0.11" }
+cw20-base = { version = "0.11.1", features = ["library"] }
+cosmwasm-std = { version = "1.0.0-beta" }
+cw-storage-plus = { version = "0.11" }
+schemars = "0.8.1"
+serde = { version = "1.0.103", default-features = false, features = ["derive"] }
+marble-collection = { path="../collection", version= "0.11.0", features = ["library"] }
+thiserror = { version = "1.0.23" }
+hex = "0.4"
+#sha2 = { version = "0.9.5", default-features = false }
+
+[dev-dependencies]
+cosmwasm-schema = "1.0.0-beta"
+serde_json = "1.0"
