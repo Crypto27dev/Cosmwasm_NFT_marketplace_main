@@ -1,0 +1,54 @@
+[package]
+name = "nftstaking"
+version = "0.11.0"
+authors = ["Joni Lai <phantomtop0127@gmail.com>"]
+edition = "2018"
+
+exclude = [
+  # Those files are rust-optimizer artifacts. You might want to commit them for convenience but they should not be part of the source code publication.
+  "contract.wasm",
+  "hash.txt",
+]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[profile.release]
+opt-level = 3
+debug = false
+rpath = false
+lto = true
+debug-assertions = false
+codegen-units = 1
+panic = 'abort'
+incremental = false
+overflow-checks = true
+
+[features]
+# for more explicit tests, cargo test --features=backtraces
+backtraces = ["cosmwasm-std/backtraces"]
+# use library feature to disable all instantiate/execute/query exports
+library = []
+
+[dependencies]
+cosmwasm-std = { version = "1.0.0-beta" }
+cosmwasm-storage = { version = "1.0.0-beta" }
+cw-storage-plus = "0.11.1"
+cw2 = "0.11.1"
+schemars = "0.8.3"
+cw721-base = { path = "../cw721-base", version = "0.11.0", features = ["library"]}
+cw721 = { version = "0.11"}
+cw20 = { version = "0.10.3" }
+cw20-base = { version = "0.10.3", features = ["library"] }
+serde = { version = "1.0.127", default-features = false}
+thiserror = { version = "1.0.26" }
+cw-utils = { version= "0.11.1" }
+prost = "0.9.0"
+hex = "0.4"
+sha2 = { version = "0.9.5", default-features = false }
+marble-collection = { path="../collection", version= "0.11.0", features = ["library"] }
+
+[dev-dependencies]
+cosmwasm-schema = { version = "1.0.0-beta" }

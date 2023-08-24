@@ -1,0 +1,13 @@
+{
+  "update_config": {
+    "cw20_address": "juno1y9rf7ql6ffwkv02hsgd4yruz23pn4w97p75e2slsnkm0mnamhzysvqnxaq",
+    "daily_reward": "1000",
+    "interval": 60
+  }
+}
+
+{
+    "get_staking": {
+      "address": "juno1ddcvnnq0puupr0f3cyq77ffmk32ylaxcd3ahjg"
+    }
+  }
