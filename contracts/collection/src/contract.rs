@@ -45,7 +45,7 @@ pub fn instantiate(
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
 
 
-    /*if msg.max_tokens == 0 {
+    if msg.max_tokens == 0 {
         return Err(crate::ContractError::InvalidMaxTokens {});
     }
 
@@ -55,7 +55,7 @@ pub fn instantiate(
     let mut sum = 0;
     for item in msg.royalties.clone() {
         sum += item.rate;
-    }*/
+    }
 
     if sum > msg.maximum_royalty_fee {
         return Err(crate::ContractError::ExceedsMaximumRoyaltyFee {});
