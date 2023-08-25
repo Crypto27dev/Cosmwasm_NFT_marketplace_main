@@ -9,7 +9,7 @@ use cosmwasm_std::{
 use cw2::set_contract_version;
 use cw721::{
     OwnerOfResponse,
-    
+
 };
 use cw20::Denom;
 
@@ -18,7 +18,7 @@ use cw2::{get_contract_version};
 use cw721::Cw721ReceiveMsg;
 use cw_storage_plus::Bound;
 use cw721_base::{
-    msg::ExecuteMsg as Cw721ExecuteMsg, msg::InstantiateMsg as Cw721InstantiateMsg, Extension, 
+    msg::ExecuteMsg as Cw721ExecuteMsg, msg::InstantiateMsg as Cw721InstantiateMsg, Extension,
     msg::MintMsg, msg::BatchMintMsg, msg::QueryMsg as Cw721QueryMsg,  msg::EditMsg
 };
 use crate::msg::{ConfigResponse, ExecuteMsg, InstantiateMsg, QueryMsg, ReceiveMsg, MigrateMsg, SaleType, DurationType, SaleInfo, SalesResponse, Request, NftReceiveMsg};
@@ -45,7 +45,7 @@ pub fn instantiate(
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
 
 
-    if msg.max_tokens == 0 {
+    /*if msg.max_tokens == 0 {
         return Err(crate::ContractError::InvalidMaxTokens {});
     }
 
@@ -55,7 +55,7 @@ pub fn instantiate(
     let mut sum = 0;
     for item in msg.royalties.clone() {
         sum += item.rate;
-    }
+    }*/
 
     if sum > msg.maximum_royalty_fee {
         return Err(crate::ContractError::ExceedsMaximumRoyaltyFee {});
@@ -172,7 +172,7 @@ fn query_get_sales(
     let limit = limit.unwrap_or(DEFAULT_LIMIT).min(MAX_LIMIT) as usize;
 
     let start = start_after.map(|str| Bound::exclusive(str.to_string()));
-    
+
     let sales:StdResult<Vec<_>> = SALE
         .range(deps.storage, start, None, Order::Ascending)
         .take(limit)
@@ -182,7 +182,7 @@ fn query_get_sales(
     Ok(SalesResponse {
         list: sales?
     })
-    
+
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -212,8 +212,8 @@ pub fn execute(
 
         ExecuteMsg::Propose{token_id, denom} => execute_propose(deps, env, info, token_id, denom),
         ExecuteMsg::Receive(msg) => execute_receive(deps, env, info, msg),
-        
-        
+
+
         ExecuteMsg::ChangeContract {    //Change the holding CW721 contract address
             cw721_address
         } => execute_change_contract(deps, info, cw721_address),
@@ -246,7 +246,7 @@ pub fn execute_mint(
 ) -> Result<Response, crate::ContractError> {
     util::check_enabled(deps.storage)?;
     let mut config = CONFIG.load(deps.storage)?;
-    
+
     if config.cw721_address == None {
         return Err(crate::ContractError::Uninitialized {});
     }
@@ -307,7 +307,7 @@ pub fn execute_batch_mint(
         token_id.push(config.unused_token_id.to_string());
         config.unused_token_id += 1;
     }
-    
+
     let mint_msg = Cw721ExecuteMsg::BatchMint(BatchMintMsg::<Extension> {
         token_id,
         owner,
@@ -328,8 +328,8 @@ pub fn execute_batch_mint(
 
 
 pub fn execute_receive_nft(
-    deps: DepsMut, 
-    info: MessageInfo, 
+    deps: DepsMut,
+    info: MessageInfo,
     wrapper: Cw721ReceiveMsg
 ) -> Result<Response, crate::ContractError> {
     util::check_enabled(deps.storage)?;
@@ -353,7 +353,7 @@ pub fn execute_receive_nft(
             if sale_type == SaleType::Fixed && duration_type != DurationType::Fixed {
                 return Err(crate::ContractError::InvalidSaleType {});
             }
-            
+
             match duration_type.clone() {
                 DurationType::Time(start, end) => {
                     if start >= end {
@@ -363,7 +363,7 @@ pub fn execute_receive_nft(
                 DurationType::Fixed => {},
                 DurationType::Bid(_count) => {}
             }
-        
+
             let info = SaleInfo {
                 token_id: token_id.parse().unwrap(),
                 provider: user_addr.clone(),
@@ -375,7 +375,7 @@ pub fn execute_receive_nft(
                 denom,
                 can_accept: false
             };
-            
+
             SALE.save(deps.storage, token_id.clone(), &info)?;
             Ok(Response::new()
                 .add_attribute("action", "start_sale")
@@ -398,17 +398,17 @@ pub fn execute_accept_sale(
     if !SALE.has(deps.storage, token_id.to_string()) {
         return Err(crate::ContractError::NotOnSale {});
     }
-    
+
     let sale_info = SALE.load(deps.storage, token_id.to_string())?;
-    
+
     if sale_info.provider != info.sender {
         return Err(crate::ContractError::Unauthorized {  });
     }
-    
+
     if sale_info.requests.len() == 0 {
         return Err(crate::ContractError::NoBids {});
     }
-    
+
     let list = sale_info.requests.clone();
     let len = sale_info.requests.len();
     let sell_request = list.get(len - 1).unwrap();
@@ -420,7 +420,7 @@ pub fn execute_accept_sale(
         let request = list.get(i).unwrap();
         msgs.push(util::transfer_token_message(sale_info.denom.clone(), request.price, request.address.clone())?);
     }
-    
+
     SALE.remove(deps.storage, token_id.to_string());
 
     Ok(Response::new()
@@ -443,7 +443,7 @@ pub fn execute_cancel_sale(
     if !SALE.has(deps.storage, token_id.to_string()) {
         return Err(crate::ContractError::NotOnSale {});
     }
-    
+
     let sale_info = SALE.load(deps.storage, token_id.to_string())?;
 
     if sale_info.provider != info.sender {
@@ -488,7 +488,7 @@ pub fn execute_propose(
     env: Env,
     info: MessageInfo,
     token_id: u32,
-    denom: String 
+    denom: String
 ) -> Result<Response, crate::ContractError> {
 
     let sale_info = SALE.load(deps.storage, token_id.to_string())?;
@@ -499,21 +499,21 @@ pub fn execute_propose(
     let amount = util::get_amount_of_denom(Balance::from(info.funds), Denom::Native(denom.clone()))?;
 
     handle_propose(deps, env, token_id, info.sender.clone(), amount)
-    
+
 }
 
 pub fn execute_receive(
     deps: DepsMut,
     env: Env,
-    info: MessageInfo, 
+    info: MessageInfo,
     wrapper: Cw20ReceiveMsg
 ) -> Result<Response, crate::ContractError> {
 
     let msg: ReceiveMsg = from_binary(&wrapper.msg)?;
-    
+
     let user_addr = deps.api.addr_validate(&wrapper.sender)?;
     let cw20_amount = wrapper.amount;
-    
+
     match msg {
         ReceiveMsg::Propose { token_id } => {
 
@@ -530,7 +530,7 @@ pub fn handle_propose(
     deps: DepsMut,
     env: Env,
     token_id: u32,
-    address: Addr, 
+    address: Addr,
     price: Uint128
 ) -> Result<Response, crate::ContractError> {
 
@@ -560,13 +560,13 @@ pub fn handle_propose(
     }
 
     let mut list = sale_info.requests.clone();
-    
+
     if sale_info.sale_type == SaleType::Fixed {
         if sale_info.initial_price > price {
             return Err(crate::ContractError::LowerPrice{})
         }
     } else if sale_info.sale_type == SaleType::Auction {
-        
+
         if list.len() == 0 && price < sale_info.initial_price || list.len() > 0 && list[list.len() - 1].price >= price {
             return Err(crate::ContractError::LowerThanPrevious {})
         }
@@ -583,7 +583,7 @@ pub fn handle_propose(
         address: address.clone(),
         price
     });
-    
+
     sale_info.requests = list.clone();
 
     if sale_info.sale_type == SaleType::Auction && price >= sale_info.reserve_price {
@@ -612,14 +612,14 @@ pub fn handle_propose(
         // if list.len() > 1 {
         //     msgs.push(util::transfer_token_message(sale_info.denom.clone(), lastitem.price, lastitem.address.clone())?);
         // }
-        
+
         Ok(Response::new()
             .add_messages(msgs)
             .add_attribute("action", "propose")
             .add_attribute("address", address.clone())
             .add_attribute("token_id", token_id.to_string())
             .add_attribute("price", price)
-        )    
+        )
     }
 }
 
@@ -642,7 +642,7 @@ pub fn sell_nft_messages (
         provider_amount -= amount;
         list.push(Request { address: item.address.clone(), price: amount });
     }
-    
+
     list.push(Request { address: sale_info.provider.clone(), price: provider_amount });
 
     let mut msgs: Vec<CosmosMsg> = vec![];
@@ -674,7 +674,7 @@ pub fn execute_edit_sale(
     duration_type: DurationType,
     initial_price: Uint128,
     reserve_price: Uint128,
-    denom: Denom 
+    denom: Denom
 ) -> Result<Response, crate::ContractError> {
 
     let mut sale_info = SALE.load(deps.storage, token_id.to_string())?;
@@ -716,7 +716,7 @@ pub fn execute_cancel_propose(
         }
         new_list.push(list[i].clone());
     }
-    
+
     sale_info.requests = new_list;
 
     SALE.save(deps.storage, token_id.to_string(), &sale_info)?;
